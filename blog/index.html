@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Writing by Parashuram Joshi — notes on building, tinkering, and infrastructure." />
+  <meta name="theme-color" content="#fdfdfb" />
+  <meta name="robots" content="index, follow" />
+
+  <title>Blog · Parashuram Joshi</title>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2HRM3D4PV5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-2HRM3D4PV5');
+  </script>
+
+  <link rel="stylesheet" href="../style.css" />
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="page-intro">
+      <h1>Blog</h1>
+      <p>Notes on things I build and tinker with.</p>
+      <nav>
+        <a href="../index.html">Home</a>
+        <a href="../books.html">Books</a>
+        <a href="index.html" aria-current="page">Blog</a>
+        <a href="../parashuram.pdf">Résumé</a>
+        <a href="mailto:parashuramjoshi23@gmail.com">Contact</a>
+      </nav>
+    </div>
+
+    <hr />
+
+    <main>
+      <ul class="post-list">
+        <li>
+          <h3><a href="running-a-homelab.html">Running a Homelab</a></h3>
+          <p class="meta">June 2026</p>
+          <p class="excerpt">
+            Why I run my own servers at home, what's in the rack, and the
+            lessons I picked up keeping it all alive.
+          </p>
+        </li>
+      </ul>
+    </main>
+
+    <footer>
+      © <span id="year">2026</span> Parashuram Joshi
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+
+</html>

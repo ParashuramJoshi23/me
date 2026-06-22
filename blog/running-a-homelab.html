@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Why I run a homelab, what's in it, and the lessons learned keeping it alive." />
+  <meta name="theme-color" content="#fdfdfb" />
+  <meta name="robots" content="index, follow" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Running a Homelab" />
+  <meta property="og:description" content="Why I run a homelab, what's in it, and the lessons learned keeping it alive." />
+
+  <title>Running a Homelab · Parashuram Joshi</title>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2HRM3D4PV5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-2HRM3D4PV5');
+  </script>
+
+  <link rel="stylesheet" href="../style.css" />
+</head>
+
+<body>
+  <div class="wrap">
+    <nav class="page-intro" style="padding-bottom:1rem;">
+      <a href="../index.html">Home</a>
+      <a href="../books.html">Books</a>
+      <a href="index.html">Blog</a>
+      <a href="../parashuram.pdf">Résumé</a>
+    </nav>
+
+    <hr />
+
+    <!--
+      ───────────────────────────────────────────────────────────────────
+      DRAFT — swap the specifics (hardware names, services, numbers) for
+      your real setup. The structure and prose are a starting point.
+      ───────────────────────────────────────────────────────────────────
+    -->
+
+    <article>
+      <h1>Running a Homelab</h1>
+      <p class="post-meta">June 2026 · ~7 min read</p>
+
+      <p>
+        For a few years now I've kept a small pile of computers humming away in
+        a corner of my apartment. It started as a single mini PC running one
+        service and has slowly grown into a proper little homelab — the place
+        where I host my own tools, break things on purpose, and learn how the
+        infrastructure I use at work actually behaves when I'm the one holding
+        the pager.
+      </p>
+
+      <p>
+        This post is a tour of why I bother, what's in the rack, and the
+        lessons that only show up after something has been running (and
+        occasionally falling over) for a while.
+      </p>
+
+      <h2>Why run a homelab at all?</h2>
+
+      <p>
+        The honest answer is that it's the best way I've found to learn. Reading
+        about networking, storage, and orchestration only gets you so far;
+        wiring it up yourself and living with the consequences teaches a
+        different, stickier kind of knowledge. A few reasons it's been worth it:
+      </p>
+
+      <ul>
+        <li>
+          <strong>A real environment to experiment in.</strong> I can try a new
+          database, a service mesh, or a backup strategy without a cloud bill
+          ticking in the background or a production incident on the line.
+        </li>
+        <li>
+          <strong>Owning my own data.</strong> A handful of the SaaS tools I
+          used to pay for now run on hardware I control, on my network.
+        </li>
+        <li>
+          <strong>Empathy for ops.</strong> Once you've been woken up by your
+          own flaky disk, you write very different runbooks at work.
+        </li>
+        <li>
+          <strong>It's genuinely fun.</strong> There's a quiet satisfaction in a
+          dashboard full of green.
+        </li>
+      </ul>
+
+      <h2>The hardware</h2>
+
+      <p>
+        I'm a big believer in starting small and cheap. You do not need a
+        42U rack to call it a homelab — a single second-hand machine is a fine
+        beginning. My current setup is deliberately modest and power-efficient:
+      </p>
+
+      <ul>
+        <li>
+          <strong>A small compute node</strong> — a mini PC with a low-power CPU
+          and 32&nbsp;GB of RAM. This does most of the heavy lifting and idles
+          quietly.
+        </li>
+        <li>
+          <strong>A NAS for storage</strong> — a few disks in a mirrored pool
+          for the things I actually care about keeping.
+        </li>
+        <li>
+          <strong>A Raspberry Pi</strong> for the always-on, low-power jobs that
+          shouldn't share fate with the main box (DNS, monitoring).
+        </li>
+        <li>
+          <strong>A UPS</strong> — the unglamorous purchase I should have made
+          first. Clean shutdowns during power cuts are worth every rupee.
+        </li>
+      </ul>
+
+      <blockquote>
+        Lesson learned early: buy the UPS and the extra disk before you buy the
+        third compute node. Reliability beats horsepower in a homelab.
+      </blockquote>
+
+      <h2>The software stack</h2>
+
+      <p>
+        The hardware is the boring part — the fun is in what runs on it.
+        Everything is containerized so I can move it between machines and rebuild
+        from scratch when (not if) something goes wrong.
+      </p>
+
+      <ul>
+        <li>
+          <strong>OS:</strong> a stable Linux base on each node, kept boring on
+          purpose.
+        </li>
+        <li>
+          <strong>Containers:</strong> Docker Compose for most services, defined
+          as code in a Git repo so the whole thing is reproducible.
+        </li>
+        <li>
+          <strong>Reverse proxy:</strong> a single ingress that handles TLS and
+          routes <code>service.home.example</code> hostnames to the right
+          container.
+        </li>
+        <li>
+          <strong>DNS &amp; ad-blocking:</strong> a local resolver so everything
+          on the network gets clean DNS and internal names.
+        </li>
+        <li>
+          <strong>Monitoring:</strong> metrics, dashboards, and alerts so the
+          lab tells me when it's unhappy instead of me finding out the hard way.
+        </li>
+      </ul>
+
+      <p>
+        A representative slice of a compose file looks like this — nothing
+        exotic, just declarative and version-controlled:
+      </p>
+
+      <pre><code>services:
+  proxy:
+    image: caddy:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+
+volumes:
+  caddy_data:</code></pre>
+
+      <h2>Networking</h2>
+
+      <p>
+        Networking is where a homelab starts to feel real. A few things that
+        made a big difference:
+      </p>
+
+      <ul>
+        <li>
+          <strong>A separate VLAN</strong> for lab gear, kept away from the
+          phones and TVs on the main network.
+        </li>
+        <li>
+          <strong>Static leases</strong> for anything that hosts a service, so
+          addresses don't shuffle around and break my proxy config.
+        </li>
+        <li>
+          <strong>A VPN back in</strong> (I use a WireGuard-based mesh) so I can
+          reach the lab from anywhere without exposing it to the open internet.
+        </li>
+      </ul>
+
+      <p>
+        That last point matters: my default is that <em>nothing</em> is exposed
+        publicly. If I need remote access, it goes through the VPN. Fewer open
+        ports, fewer 3&nbsp;a.m. surprises.
+      </p>
+
+      <h2>Backups, or: how I learned to relax</h2>
+
+      <p>
+        The first rule of a homelab is that the lab will break. Disks die,
+        upgrades go sideways, and one day you'll <code>rm -rf</code> the wrong
+        directory. Backups are what turn a disaster into an inconvenience.
+      </p>
+
+      <p>I keep to a simple version of the 3-2-1 rule:</p>
+
+      <ul>
+        <li><strong>3</strong> copies of anything important,</li>
+        <li><strong>2</strong> different kinds of media,</li>
+        <li><strong>1</strong> copy off-site (encrypted, in cheap cloud storage).</li>
+      </ul>
+
+      <p>
+        Just as important: I actually test restores. A backup you've never
+        restored from is a hope, not a backup.
+      </p>
+
+      <h2>Lessons learned</h2>
+
+      <ul>
+        <li>
+          <strong>Start small.</strong> One machine, one service. Grow it as you
+          hit real limits, not imagined ones.
+        </li>
+        <li>
+          <strong>Treat config as code.</strong> If you can't rebuild a service
+          from a Git repo, you don't really own it — the machine does.
+        </li>
+        <li>
+          <strong>Boring is a feature.</strong> Stable base images and
+          well-trodden tools beat the shiny new thing when it's 11&nbsp;p.m. and
+          something is down.
+        </li>
+        <li>
+          <strong>Monitor before you scale.</strong> You can't fix what you
+          can't see.
+        </li>
+        <li>
+          <strong>Document as you go.</strong> Future-you will not remember why
+          that one container needs that one weird flag.
+        </li>
+      </ul>
+
+      <h2>Where it's headed</h2>
+
+      <p>
+        The lab is never really finished, which is part of the appeal. Next on
+        my list is tightening up automated provisioning so a dead node can be
+        replaced in minutes, and getting alerting quiet enough that it only
+        pages me when it truly matters.
+      </p>
+
+      <p>
+        If you've been thinking about starting one: get a cheap second-hand
+        machine, pick one service you wish you self-hosted, and go. The rest
+        follows.
+      </p>
+
+      <a class="back-link" href="index.html">← Back to all posts</a>
+    </article>
+
+    <footer>
+      © <span id="year">2026</span> Parashuram Joshi
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+
+</html>

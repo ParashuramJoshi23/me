@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Books Parashuram Joshi loved, with short reviews." />
+  <meta name="theme-color" content="#fdfdfb" />
+  <meta name="robots" content="index, follow" />
+
+  <title>Books · Parashuram Joshi</title>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2HRM3D4PV5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-2HRM3D4PV5');
+  </script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="page-intro">
+      <h1>Books</h1>
+      <p>Books I've loved, and what stuck with me.</p>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="books.html" aria-current="page">Books</a>
+        <a href="blog/">Blog</a>
+        <a href="parashuram.pdf">Résumé</a>
+        <a href="mailto:parashuramjoshi23@gmail.com">Contact</a>
+      </nav>
+    </div>
+
+    <hr />
+
+    <main>
+      <!--
+        ───────────────────────────────────────────────────────────────
+        To add a book, copy one <article class="book"> block below and
+        fill it in. Rating is just filled (★) vs empty (☆) stars — use
+        as many as you like (5 is a common max).
+        ───────────────────────────────────────────────────────────────
+      -->
+
+      <article class="book">
+        <h3>Example Book Title</h3>
+        <p class="byline">by Author Name · <span class="rating">★★★★★</span></p>
+        <p class="review">
+          Your review goes here — what you loved about it, the idea that stuck
+          with you, who you'd recommend it to. A couple of sentences is plenty.
+          Replace this block with your real books.
+        </p>
+      </article>
+    </main>
+
+    <footer>
+      © <span id="year">2026</span> Parashuram Joshi
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+
+</html>
